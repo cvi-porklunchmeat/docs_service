@@ -1,0 +1,604 @@
+openapi: 3.0.1
+info:
+  title: ${portal_name}
+  version: "1.0"
+servers:
+- url: /v1
+security:
+- oauth2-jwt-authorizer: []
+x-amazon-apigateway-gateway-responses:
+  MISSING_AUTHENTICATION_TOKEN:
+    statusCode: 401
+    responseParameters:
+      gatewayresponse.header.Access-Control-Allow-Headers: "'*'"
+      gatewayresponse.header.Access-Control-Allow-Methods: "'*'"
+      gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
+  AUTHORIZER_CONFIGURATION_ERROR:
+    statusCode: 401
+    responseParameters:
+      gatewayresponse.header.Access-Control-Allow-Headers: "'*'"
+      gatewayresponse.header.Access-Control-Allow-Methods: "'*'"
+      gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
+  AUTHORIZER_FAILURE:
+    statusCode: 401
+    responseParameters:
+      gatewayresponse.header.Access-Control-Allow-Headers: "'*'"
+      gatewayresponse.header.Access-Control-Allow-Methods: "'*'"
+      gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
+  UNAUTHORIZED:
+    statusCode: 401
+    responseParameters:
+      gatewayresponse.header.Access-Control-Allow-Headers: "'*'"
+      gatewayresponse.header.Access-Control-Allow-Methods: "'*'"
+      gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
+paths:
+  /upload/remote:
+    post:
+      summary: POST /upload API Endpoint
+      responses:
+        201:
+          description: Response from POST /upload
+        403:
+          description: Failed to authenticate request
+          content: {}
+      security:
+      - oauth2-jwt-authorizer: []
+      x-amazon-apigateway-integration:
+        uri: ${fetch_and_download_lambda_function}
+        httpMethod: POST
+        type: aws_proxy
+        passthroughBehavior: when_no_match
+      x-codegen-request-body-name: workspace
+    options:
+      tags:
+      - CORS
+      summary: CORS support
+      description: |
+        Enable CORS by returning correct headers
+      responses:
+        200:
+          description: Default response for CORS method
+          headers:
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+            Access-Control-Allow-Methods:
+              schema:
+                type: string
+            Access-Control-Allow-Headers:
+              schema:
+                type: string
+            Access-Control-Allow-Credentials:
+              schema:
+                type: string
+          content: {}
+      security: []
+      x-amazon-apigateway-integration:
+        type: mock
+        requestTemplates:
+          application/json: |
+            {
+              "statusCode" : 200
+            }
+        responses:
+          default:
+            statusCode: 200
+            responseParameters:
+              method.response.header.Access-Control-Allow-Headers: '''content-type'''
+              method.response.header.Access-Control-Allow-Methods: '''POST,OPTIONS'''
+              method.response.header.Access-Control-Allow-Origin: '''${allowed_origin}'''
+            responseTemplates:
+              application/json: |
+                {}
+  /generate_document_url:
+    get:
+      summary: GET /generate_document_url API Endpoint
+      parameters:
+        - in: query
+          name: document_path
+          schema:
+            type: string
+          allowReserved: true
+      responses:
+        200:
+          description: Response from GET /generate_document_url
+        403:
+          description: Failed to authenticate request
+          content: {}
+      security:
+      - oauth2-jwt-authorizer: []
+      x-amazon-apigateway-integration:
+        uri: ${generate_document_url_lambda_function}
+        httpMethod: POST
+        type: aws_proxy
+        passthroughBehavior: when_no_match
+      x-codegen-request-body-name: workspace
+    options:
+      tags:
+      - CORS
+      summary: CORS support
+      description: |
+        Enable CORS by returning correct headers
+      responses:
+        200:
+          description: Default response for CORS method
+          headers:
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+            Access-Control-Allow-Methods:
+              schema:
+                type: string
+            Access-Control-Allow-Headers:
+              schema:
+                type: string
+          content: {}
+      security: []
+      x-amazon-apigateway-integration:
+        type: mock
+        requestTemplates:
+          application/json: |
+            {
+              "statusCode" : 200
+            }
+        responses:
+          default:
+            statusCode: 200
+            responseParameters:
+              method.response.header.Access-Control-Allow-Headers: '''content-type'''
+              method.response.header.Access-Control-Allow-Methods: '''GET,OPTIONS'''
+              method.response.header.Access-Control-Allow-Origin: '''${allowed_origin}'''
+            responseTemplates:
+              application/json: |
+                {}
+  /upload/local:
+    post:
+      summary: Test POST API Endpoint
+      responses:
+        200:
+          description: Test response
+        403:
+          description: Failed to authenticate request
+          content: {}
+      security:
+      - oauth2-jwt-authorizer: []
+      x-amazon-apigateway-integration:
+        uri: ${local_document_upload_lambda_function}
+        httpMethod: POST
+        type: aws_proxy
+        passthroughBehavior: when_no_match
+      x-codegen-request-body-name: workspace
+    options:
+      tags:
+      - CORS
+      summary: CORS support
+      description: |
+        Enable CORS by returning correct headers
+      responses:
+        200:
+          description: Default response for CORS method
+          headers:
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+            Access-Control-Allow-Methods:
+              schema:
+                type: string
+            Access-Control-Allow-Headers:
+              schema:
+                type: string
+          content: {}
+      security: []
+      x-amazon-apigateway-integration:
+        type: mock
+        requestTemplates:
+          application/json: |
+            {
+              "statusCode" : 200
+            }
+        responses:
+          default:
+            statusCode: 200
+            responseParameters:
+              method.response.header.Access-Control-Allow-Headers: '''content-type'''
+              method.response.header.Access-Control-Allow-Methods: '''GET,OPTIONS'''
+              method.response.header.Access-Control-Allow-Origin: '''${allowed_origin}'''
+            responseTemplates:
+              application/json: |
+                {}
+  /docs/search:
+    get:
+      summary: GET /docs/search API Endpoint
+      responses:
+        200:
+          description: Successful response from GET /docs/search
+        403:
+          description: Failed to authenticate request
+          content: {}
+      security:
+      - oauth2-jwt-authorizer: []
+      x-amazon-apigateway-integration:
+        uri: ${opensearch_document_download_lambda_function}
+        httpMethod: POST
+        type: aws_proxy
+        passthroughBehavior: when_no_match
+      x-codegen-request-body-name: workspace
+    options:
+      tags:
+      - CORS
+      summary: CORS support
+      description: |
+        Enable CORS by returning correct headers
+      responses:
+        200:
+          description: Default response for CORS method
+          headers:
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+            Access-Control-Allow-Methods:
+              schema:
+                type: string
+            Access-Control-Allow-Headers:
+              schema:
+                type: string
+          content: {}
+      security: []
+      x-amazon-apigateway-integration:
+        type: mock
+        requestTemplates:
+          application/json: |
+            {
+              "statusCode" : 200
+            }
+        responses:
+          default:
+            statusCode: 200
+            responseParameters:
+              method.response.header.Access-Control-Allow-Headers: '''content-type'''
+              method.response.header.Access-Control-Allow-Methods: '''GET,OPTIONS'''
+              method.response.header.Access-Control-Allow-Origin: '''${allowed_origin}'''
+            responseTemplates:
+              application/json: |
+                {}
+  /docs/reset_opensearch_index:
+    get:
+      summary: GET /docs/reset_opensearch_index API Endpoint
+      responses:
+        200:
+          description: Successful response from GET /docs/reset_opensearch_index
+        403:
+          description: Failed to authenticate request
+          content: {}
+      security:
+      - oauth2-jwt-authorizer: []
+      x-amazon-apigateway-integration:
+        uri: ${opensearch_document_download_lambda_function}
+        httpMethod: POST
+        type: aws_proxy
+        passthroughBehavior: when_no_match
+      x-codegen-request-body-name: workspace
+    options:
+      tags:
+      - CORS
+      summary: CORS support
+      description: |
+        Enable CORS by returning correct headers
+      responses:
+        200:
+          description: Default response for CORS method
+          headers:
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+            Access-Control-Allow-Methods:
+              schema:
+                type: string
+            Access-Control-Allow-Headers:
+              schema:
+                type: string
+          content: {}
+      security: []
+      x-amazon-apigateway-integration:
+        type: mock
+        requestTemplates:
+          application/json: |
+            {
+              "statusCode" : 200
+            }
+        responses:
+          default:
+            statusCode: 200
+            responseParameters:
+              method.response.header.Access-Control-Allow-Headers: '''content-type'''
+              method.response.header.Access-Control-Allow-Methods: '''GET,OPTIONS'''
+              method.response.header.Access-Control-Allow-Origin: '''${allowed_origin}'''
+            responseTemplates:
+              application/json: |
+                {}
+  /auth/authorize:
+    get:
+      summary: Redirect to Idp
+      security: []
+      parameters:
+        - in: "path"
+          name: "state"
+          type: "string"
+          description: state
+          content: {}
+          required: true
+      responses:
+        302:
+          content: {}
+        403:
+          description: Failed to redirect to Idp
+          content: {}
+      x-amazon-apigateway-integration:
+        uri: ${auth_authorize_lambda_function}
+        httpMethod: POST
+        type: aws_proxy
+        passthroughBehavior: when_no_match
+      x-codegen-request-body-name: authorize
+    options:
+      tags:
+      - CORS
+      summary: CORS support
+      security: []
+      description: |
+        Enable CORS by returning correct headers
+      responses:
+        200:
+          description: Default response for CORS method
+          headers:
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+            Access-Control-Allow-Methods:
+              schema:
+                type: string
+            Access-Control-Allow-Headers:
+              schema:
+                type: string
+            Access-Control-Allow-Credentials:
+              schema:
+                type: string
+          content: {}
+      x-amazon-apigateway-integration:
+        type: mock
+        requestTemplates:
+          application/json: |
+            {
+              "statusCode" : 200
+            }
+        responses:
+          default:
+            statusCode: 200
+            responseParameters:
+              method.response.header.Access-Control-Allow-Headers: '''Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'''
+              method.response.header.Access-Control-Allow-Methods: '''GET,OPTIONS'''
+              method.response.header.Access-Control-Allow-Origin: '''*'''
+            responseTemplates:
+              application/json: |
+                {}
+  /auth/token:
+    post:
+      summary: Request accessToken / refreshToken with an authCode
+      security: []
+      parameters:
+        - in: "path"
+          name: "code"
+          type: "string"
+          description: code
+          content: {}
+          required: true
+      responses:
+        200:
+          description: |
+            Successful return of deletion confirmation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/token'
+        400:
+          description: |
+            "Failed to Parse Request Body" if the request body is blank or incorrectly formatted."
+          content: {}
+        403:
+          description: Failed to authenticate request
+          content: {}
+        500:
+          description: Server errors if the database cannot be reached.
+          content: {}
+      x-amazon-apigateway-integration:
+        uri: ${auth_token_lambda_function}
+        httpMethod: POST
+        type: aws_proxy
+        passthroughBehavior: when_no_match
+      x-codegen-request-body-name: token
+    options:
+      tags:
+      - CORS
+      summary: CORS support
+      security: []
+      description: |
+        Enable CORS by returning correct headers
+      responses:
+        200:
+          description: Default response for CORS method
+          headers:
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+            Access-Control-Allow-Methods:
+              schema:
+                type: string
+            Access-Control-Allow-Headers:
+              schema:
+                type: string
+            Access-Control-Allow-Credentials:
+              schema:
+                type: string
+          content: {}
+      x-amazon-apigateway-integration:
+        type: mock
+        requestTemplates:
+          application/json: |
+            {
+              "statusCode" : 200
+            }
+        responses:
+          default:
+            statusCode: 200
+            responseParameters:
+              method.response.header.Access-Control-Allow-Headers: '''Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'''
+              method.response.header.Access-Control-Allow-Methods: '''POST,OPTIONS'''
+              method.response.header.Access-Control-Allow-Origin: '''*'''
+            responseTemplates:
+              application/json: |
+                {}
+  /api-docs:
+    get:
+      summary: Swagger API Endpoint
+      responses:
+        200:
+          description: GET response
+        403:
+          description: Failed to authenticate request
+          content: {}
+      security: []
+      x-amazon-apigateway-integration:
+        uri: ${swagger_ui_lambda_function}
+        httpMethod: POST
+        type: aws_proxy
+        passthroughBehavior: when_no_match
+      x-codegen-request-body-name: workspace
+    options:
+      tags:
+      - CORS
+      summary: CORS support
+      description: |
+        Enable CORS by returning correct headers
+      responses:
+        200:
+          description: Default response for CORS method
+          headers:
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+            Access-Control-Allow-Methods:
+              schema:
+                type: string
+            Access-Control-Allow-Headers:
+              schema:
+                type: string
+          content: {}
+      security: []
+      x-amazon-apigateway-integration:
+        type: mock
+        requestTemplates:
+          application/json: |
+            {
+              "statusCode" : 200
+            }
+        responses:
+          default:
+            statusCode: 200
+            responseParameters:
+              method.response.header.Access-Control-Allow-Headers: '''content-type'''
+              method.response.header.Access-Control-Allow-Methods: '''GET,OPTIONS'''
+              method.response.header.Access-Control-Allow-Origin: '''${allowed_origin}'''
+            responseTemplates:
+              application/json: |
+                {}
+  /api-docs/{proxy+}:
+    get:
+      parameters:
+        - name: "proxy"
+          in: "path"
+          required: true
+          type: "string"
+      summary: Swagger API Endpoint
+      responses:
+        200:
+          description: GET response
+        403:
+          description: Failed to authenticate request
+          content: {}
+      security: []
+      x-amazon-apigateway-integration:
+        uri: ${swagger_ui_lambda_function}
+        httpMethod: POST
+        type: aws_proxy
+        passthroughBehavior: when_no_match
+      x-codegen-request-body-name: workspace
+    options:
+      tags:
+      - CORS
+      summary: CORS support
+      description: |
+        Enable CORS by returning correct headers
+      responses:
+        200:
+          description: Default response for CORS method
+          headers:
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+            Access-Control-Allow-Methods:
+              schema:
+                type: string
+            Access-Control-Allow-Headers:
+              schema:
+                type: string
+          content: {}
+      security: []
+      x-amazon-apigateway-integration:
+        type: mock
+        requestTemplates:
+          application/json: |
+            {
+              "statusCode" : 200
+            }
+        responses:
+          default:
+            statusCode: 200
+            responseParameters:
+              method.response.header.Access-Control-Allow-Headers: '''content-type'''
+              method.response.header.Access-Control-Allow-Methods: '''GET,OPTIONS'''
+              method.response.header.Access-Control-Allow-Origin: '''${allowed_origin}'''
+            responseTemplates:
+              application/json: |
+                {}
+components:
+  schemas:
+    token:
+      type: object
+      properties:
+        token_type:
+          type: string
+          description: The type of token received
+        expires_in:
+          type: string
+          description: When the token expires
+        access_token:
+          type: string
+          description: JWT accessToken
+        id_token:
+          type: string
+          description: JWT idToken
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      name: x-api-key
+      in: header
+    oauth2-jwt-authorizer:
+      type: apiKey
+      name: Authorization
+      in: header
+      x-amazon-apigateway-authtype: custom
+      x-amazon-apigateway-authorizer:
+        authorizerUri: ${authorizer_lambda_function}
+        authorizerCredentials: ${authorizer_lambda_function_role}
+        authorizerResultTtlInSeconds: 300
+        identityValidationExpression: ^Bearer [-0-9a-zA-z\.]*$
+        type: token

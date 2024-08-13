@@ -1,0 +1,65 @@
+{
+    "version": "0",
+    "id": "667dd004-8cc9-ba13-24aa-1bbfc594821f",
+    "detail-type": "Event from aws:sqs",
+    "source": "Pipe pr-28-docs-service-sqs_to_eventbridge",
+    "account": "182773718531",
+    "time": "2023-07-05T00:14:43Z",
+    "region": "us-east-1",
+    "resources": [],
+    "detail": {
+        "messageId": "4c862414-c9ed-4a8c-8469-43dcc5580657",
+        "receiptHandle": "AQEBIV3PO7DD9IJUQLvSYEYXZyAUzqHlsbaU0ca1nMc8ViAe/keD5cjqzDbK5sMwEuE9YOuzOxKnSjMnA7nZgKBWCwBai7tlV/HBoBZgphR90/NZ9Pr72fMMmKK60bzU8GRbSHALktL6wBdO8F+T1x+3CzfKKexEh4aFwLSaFoX7aDBjpqkWjjhXG8hntX2vsTKq1b4uwjBxp0lSThqHZvHfZyN3jbAcwPAvNu2xqCaceGROuCVtSyb1d+cYECPypKMtC5ms8IUCLpYgsgFdYrhmBVFmW6r8kyWBJOIejIAgc16kXvM7qfpBU2X7NgvDrOwS/uwwD1Gu1h9IrRd4CTbc9cd6d3EuRv3CqkXzd0O6YV17iAJQRLdGNZC0+BDo8FORzxgcXvo1V5ovTNla4Fi0AAKrBbKvtoP5K7p6J2pHjAQ=",
+        "body": {
+            "Records": [
+                {
+                    "eventVersion": "2.1",
+                    "eventSource": "aws:s3",
+                    "awsRegion": "us-east-1",
+                    "eventTime": "2023-07-05T00:14:42.884Z",
+                    "eventName": "ObjectCreated:Put",
+                    "userIdentity": {
+                        "principalId": "AWS:AROASVDRJTYBURODFU447:pr-28-docs-service-retrieve-textract"
+                    },
+                    "requestParameters": {
+                        "sourceIPAddress": "34.236.244.19"
+                    },
+                    "responseElements": {
+                        "x-amz-request-id": "KB07B5PMTH8CH4RT",
+                        "x-amz-id-2": "PZ/2KR2YvlJvQ2gWAFQelqHvQ9CtDhkZtyBsM018AdxzeZwBITN2KyMAkMeIUNj5oJuVDyfVSKvMNo2wi63NV0IX/OUmQav/"
+                    },
+                    "s3": {
+                        "s3SchemaVersion": "1.0",
+                        "configurationId": "tf-s3-queue-20230705000813753600000002",
+                        "bucket": {
+                            "name": "pr-28-docs-service-documents",
+                            "ownerIdentity": {
+                                "principalId": "A26PYTU51ZJSB0"
+                            },
+                            "arn": "arn:aws:s3:::pr-28-docs-service-documents"
+                        },
+                        "object": {
+                            "key": "files/2023-07-05/d1be89a4-9bea-401b-9900-e1db35cf7aae/document_raw_text.txt",
+                            "size": 6294,
+                            "eTag": "cb9e77af8a10606e9648dd8d5341542d",
+                            "versionId": "iCIgmEJArOIIHpaEYcjKAG9UST9bVUR7",
+                            "sequencer": "0064A4B5F2CB961FA1"
+                        }
+                    }
+                }
+            ]
+        },
+        "attributes": {
+            "ApproximateReceiveCount": "1",
+            "AWSTraceHeader": "Root=1-64a4b5ee-1335bb5d5255fa3a30c7637d;Parent=2b747b5b44c80cb9;Sampled=0",
+            "SentTimestamp": "1688516083675",
+            "SenderId": "AIDAJHIPRHEMV73VRJEBU",
+            "ApproximateFirstReceiveTimestamp": "1688516083683"
+        },
+        "messageAttributes": {},
+        "md5OfBody": "15d0a566e7edd3e19c7a01049dd46515",
+        "eventSource": "aws:sqs",
+        "eventSourceARN": "arn:aws:sqs:us-east-1:182773718531:pr-28-docs-service-s3-to-pipe",
+        "awsRegion": "us-east-1"
+    }
+}

@@ -1,0 +1,549 @@
+# CircleCI 2 configuration file
+# Check https://circleci.com/docs/2.0/getting-started/#section=getting-started for more details
+
+version: 2.1
+
+anchors:
+  - &linux_build
+    docker:
+      - image: 589122266145.dkr.ecr.us-east-1.amazonaws.com/prod-linux_build:latest #checkov:skip=CKV_CIRCLECIPIPELINES_1:Trust cloud Images
+        aws_auth:
+          aws_access_key_id: $AWS_ACCESS_KEY_ID
+          aws_secret_access_key: $AWS_SECRET_ACCESS_KEY
+
+  - &linux_tf
+    docker:
+      - image: 589122266145.dkr.ecr.us-east-1.amazonaws.com/prod-linux_tf:2.1.0 #checkov:skip=CKV_CIRCLECIPIPELINES_2:Trust cloud Images
+        aws_auth:
+          aws_access_key_id: $AWS_ACCESS_KEY_ID
+          aws_secret_access_key: $AWS_SECRET_ACCESS_KEY
+
+  - &linter
+    docker:
+      - image: 589122266145.dkr.ecr.us-east-1.amazonaws.com/prod-linter:2.0.0 #checkov:skip=CKV_CIRCLECIPIPELINES_2:Trust cloud Images
+        aws_auth:
+          aws_access_key_id: $AWS_ACCESS_KEY_ID
+          aws_secret_access_key: $AWS_SECRET_ACCESS_KEY
+
+  - &alpine_build
+    docker:
+      - image: 589122266145.dkr.ecr.us-east-1.amazonaws.com/prod-alpine_build:2.0.0
+        aws_auth:
+          aws_access_key_id: $AWS_ACCESS_KEY_ID
+          aws_secret_access_key: $AWS_SECRET_ACCESS_KEY
+
+  - &compliance_container
+    docker:
+      - image: 589122266145.dkr.ecr.us-east-1.amazonaws.com/prod-compliance:latest
+        aws_auth:
+          aws_access_key_id: $AWS_ACCESS_KEY_ID
+          aws_secret_access_key: $AWS_SECRET_ACCESS_KEY
+
+  - &pytest
+    docker:
+      - image: cimg/python@sha256:0fd2b0f846c9a3b5494d9496690fd23dbb7ff3cf6aa8d6b0d7b329bb32d8b266
+
+  - &init_bash_env
+    run:
+      name: Check for / create backend state resources
+      shell: /bin/bash
+      command: |
+        echo 'export AWS_DEFAULT_REGION="us-east-1"' >> $BASH_ENV
+        echo 'export AWS_ACCESS_KEY_ID="$AWS_ACCESS_KEY_ID"' >> $BASH_ENV
+        echo 'export AWS_SECRET_ACCESS_KEY="$AWS_SECRET_ACCESS_KEY"' >> $BASH_ENV
+        echo 'export BACKEND_ACCT="589122266145"' >> $BASH_ENV
+        echo 'export DATA_ACCT="967336502278"' >> $BASH_ENV
+        echo 'export NETWORK_ACCT="861337485143"' >> $BASH_ENV
+        echo 'export GIT_COMMIT=$(git rev-parse --short HEAD)' >> $BASH_ENV
+
+        if [ ${CIRCLE_BRANCH} == 'main' ]; then
+          echo 'export NAMESPACE="prod"' >> $BASH_ENV
+          echo 'export REPONAME="${CIRCLE_PROJECT_REPONAME}"' >> $BASH_ENV
+          echo 'export DEFAULT_PROFILE="Dev_Acct_Secret"' >> $BASH_ENV
+          echo 'export APP_PROFILE="Dev_Acct_Secret"' >> $BASH_ENV
+          echo 'export ACCT="435719252569"' >> $BASH_ENV
+        else
+          echo 'export NAMESPACE="pr-${CIRCLE_PULL_REQUEST##*/}"' >> $BASH_ENV
+          echo 'export REPONAME="${CIRCLE_PROJECT_REPONAME}"' >> $BASH_ENV
+          echo 'export DEFAULT_PROFILE="Dev_Acct_Secret"' >> $BASH_ENV
+          echo 'export APP_PROFILE="Dev_Acct_Secret"' >> $BASH_ENV
+          echo 'export ACCT="182773718531"' >> $BASH_ENV
+        fi
+
+        echo 'export PROJECT_NAME=$(jq -r .json.project_name terraform/app/terraform.tfvars.json)' >> $BASH_ENV
+        echo 'export TF_VAR_env_name="${NAMESPACE}-${PROJECT_NAME}"' >> $BASH_ENV
+        echo 'export TF_VAR_git_sha="${GIT_COMMIT}"' >> $BASH_ENV
+
+        cat $BASH_ENV
+
+        source $BASH_ENV
+  - &pytest
+    docker:
+      - image: python:3.10-slim
+jobs:
+  release:
+    <<: *linux_build
+    steps:
+      - checkout
+      - *init_bash_env
+      - run:
+          name: Semantic Release
+          command: |
+            source scripts/tf_creds.sh \
+              $AWS_DEFAULT_REGION \
+              $NAMESPACE \
+              $APP_PROFILE \
+              "$ACCT $BACKEND_ACCT $NETWORK_ACCT"
+            semantic-release
+  lint_python:
+    <<: *pytest
+    steps:
+      - checkout
+      - run:
+          shell: /bin/bash
+          name: Install packages
+          command: |
+            python3 -m pip install -r tests/requirements.txt
+      - run:
+          shell: /bin/bash
+          name: Python Linting & Formatting
+          command: python3 -m ruff check . && python3 -m ruff format . --check
+  lint_json:
+    <<: *linter
+    steps:
+      - checkout
+      - run:
+          shell: /bin/bash
+          name: JSON Linter
+          command: find <. -not -path "*/\.*" -type f -iname "*.json" -exec jsonlint \{\} \+
+  lint_yaml:
+    <<: *linter
+    steps:
+      - checkout
+      - run:
+          shell: /bin/bash
+          name: YAML Linter
+          command: yaml-lint -i ./ ./.circleci/ ./.github/
+  lint_bash:
+    <<: *linter
+    steps:
+      - checkout
+      - run:
+          shell: /bin/bash
+          name: ShellCheck Linter
+          command: shellcheck **/*.sh
+  add_op_to_pr:
+    <<: *linux_build
+    steps:
+      - checkout
+      - run:
+          shell: /bin/bash
+          name: Add OP# to PR
+          command: source ./scripts/update_pr.sh
+
+  lint_terraform:
+    <<: *linux_tf
+    steps:
+      - checkout
+      - *init_bash_env
+      - run:
+          name: Lint Terraform
+          command: source scripts/tf_lint.sh
+
+  compliance:
+    <<: *compliance_container
+    steps:
+      - attach_workspace:
+          at: /tmp
+      - run:
+          name: Check IaC Compliance
+          command: |
+            tar -zxvf /tmp/tfplans.tar.gz
+            for state in $(ls plans/json/*.json)
+            do
+              plan=$(realpath $state)
+              terraform-compliance -f /features -p "${plan}"
+            done
+
+  docker_build:
+    <<: *linux_build
+    steps:
+      - checkout
+      - setup_remote_docker:
+          docker_layer_caching: true
+      - *init_bash_env
+      - run:
+          name: Build and Push Docker Image
+          command: |
+            set -x
+            source scripts/tf_creds.sh \
+              $AWS_DEFAULT_REGION \
+              $NAMESPACE \
+              $APP_PROFILE \
+              "$ACCT $BACKEND_ACCT"
+
+            export AWS_ACCESS_KEY_ID=""
+            export AWS_SECRET_ACCESS_KEY=""
+
+            aws ecr get-login-password --region "${AWS_DEFAULT_REGION}" | docker login --username AWS --password-stdin "${ACCT}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com"
+
+            echo "ECR Target: ${TF_VAR_env_name}"
+
+            docker --version
+
+            docker build \
+            -t "${TF_VAR_env_name}:latest" \
+            -t "${TF_VAR_env_name}:${GIT_COMMIT}" \
+            --cache-from ${ACCT}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${TF_VAR_env_name}:latest .
+
+            if [[ $? -ne 0 ]]; then
+                printf "Failed to build image"
+                exit 1
+            fi
+
+            printf "\n Tagging images ...\n"
+            docker tag "${TF_VAR_env_name}:${GIT_COMMIT}" "${ACCT}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${TF_VAR_env_name}:${GIT_COMMIT}"
+            docker tag "${TF_VAR_env_name}:latest" "${ACCT}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${TF_VAR_env_name}:latest"
+
+            # Push images to ECR
+            printf "\nPushing to ECR ...\n"
+            docker push "${ACCT}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${TF_VAR_env_name}:${GIT_COMMIT}"
+            docker push "${ACCT}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${TF_VAR_env_name}:latest"
+
+  artifact_bucket:
+    <<: *linux_build
+    steps:
+      - checkout
+      - *init_bash_env
+      - run:
+          name: Build artifact bucket
+          command: |
+            source scripts/tf_creds.sh \
+              $AWS_DEFAULT_REGION \
+              $NAMESPACE \
+              $APP_PROFILE \
+              "$ACCT $BACKEND_ACCT"
+            export AWS_ACCESS_KEY_ID=""
+            export AWS_SECRET_ACCESS_KEY=""
+            source scripts/tf_artifact_bucket.sh \
+              $NAMESPACE \
+              $BACKEND_BUCKET \
+              $BACKEND_TABLE \
+              $BACKEND_ACCT \
+              $REPONAME \
+              $AWS_DEFAULT_REGION
+
+  artifacts:
+    <<: *linux_build
+    steps:
+      - checkout
+      - *init_bash_env
+      - run:
+          name: Build and upload lambda packages to S3
+          command: |
+            source scripts/tf_creds.sh \
+              $AWS_DEFAULT_REGION \
+              $NAMESPACE \
+              $APP_PROFILE \
+              "$ACCT $BACKEND_ACCT"
+
+            export AWS_ACCESS_KEY_ID=""
+            export AWS_SECRET_ACCESS_KEY=""
+
+            source scripts/package_lambda.sh \
+              $NAMESPACE \
+              $REPONAME
+
+            source scripts/upload_lambda.sh \
+              $NAMESPACE \
+              $REPONAME
+
+  # plan-prod:
+  #   <<: *alpine_build
+  #   steps:
+  #     - checkout
+  #     - *init_bash_env
+  #     - run:
+  #         name: Plan Production
+  #         command: |
+  #           export AWS_DEFAULT_REGION="us-east-1"
+  #           export AWS_ACCESS_KEY_ID="$AWS_ACCESS_KEY_ID"
+  #           export AWS_SECRET_ACCESS_KEY="$AWS_SECRET_ACCESS_KEY"
+  #           export BACKEND_ACCT="589122266145"
+
+  #           export NAMESPACE="prod"
+  #           export REPONAME="${CIRCLE_PROJECT_REPONAME}"
+  #           export DEFAULT_PROFILE="Dev_Acct_Secret"
+  #           export APP_PROFILE="Dev_Acct_Secret"
+  #           export ACCT="435719252569"
+  #           export PLAN_PROD=TRUE
+
+  #           source scripts/tf_creds.sh \
+  #             $AWS_DEFAULT_REGION \
+  #             $NAMESPACE \
+  #             $APP_PROFILE \
+  #             "$ACCT $BACKEND_ACCT $DATA_ACCT $NETWORK_ACCT"
+
+  #           export AWS_ACCESS_KEY_ID=""
+  #           export AWS_SECRET_ACCESS_KEY=""
+
+  #           source scripts/tf_plan.sh \
+  #             $NAMESPACE \
+  #             $BACKEND_BUCKET \
+  #             $BACKEND_TABLE \
+  #             $BACKEND_ACCT \
+  #             $REPONAME \
+  #             $AWS_DEFAULT_REGION
+
+  plan:
+    <<: *linux_build
+    steps:
+      - checkout
+      - setup_remote_docker:
+          docker_layer_caching: true
+      - *init_bash_env
+      - run:
+          name: Terraform Plan
+          command: |
+            source scripts/tf_creds.sh \
+              $AWS_DEFAULT_REGION \
+              $NAMESPACE \
+              $APP_PROFILE \
+              "$ACCT $BACKEND_ACCT $DATA_ACCT $NETWORK_ACCT"
+            export AWS_ACCESS_KEY_ID=""
+            export AWS_SECRET_ACCESS_KEY=""
+            source scripts/tf_plan.sh \
+              $NAMESPACE \
+              $BACKEND_BUCKET \
+              $BACKEND_TABLE \
+              $BACKEND_ACCT \
+              $REPONAME \
+              $AWS_DEFAULT_REGION
+      - persist_to_workspace:
+          root: /tmp
+          paths:
+            - tfplans.tar.gz
+
+  apply:
+    <<: *linux_build
+    steps:
+      - checkout
+      - setup_remote_docker:
+          docker_layer_caching: true
+      - *init_bash_env
+      - attach_workspace:
+          at: /tmp
+      - run:
+          name: Terraform Apply
+          command: |
+            tar -zxvf /tmp/tfplans.tar.gz
+
+            source scripts/tf_creds.sh \
+              $AWS_DEFAULT_REGION \
+              $NAMESPACE \
+              $APP_PROFILE \
+              "$ACCT $BACKEND_ACCT $DATA_ACCT $NETWORK_ACCT"
+
+            export AWS_ACCESS_KEY_ID=""
+            export AWS_SECRET_ACCESS_KEY=""
+
+            source scripts/tf_apply.sh \
+              $NAMESPACE \
+              $BACKEND_BUCKET \
+              $BACKEND_TABLE \
+              $BACKEND_ACCT \
+              $REPONAME \
+              $AWS_DEFAULT_REGION
+
+  destroy:
+    <<: *linux_build
+    steps:
+      - checkout
+      - setup_remote_docker:
+          docker_layer_caching: true
+      - *init_bash_env
+      - run:
+          name: Terraform Destroy
+          command: |
+            source scripts/tf_creds.sh \
+              $AWS_DEFAULT_REGION \
+              $NAMESPACE \
+              $APP_PROFILE \
+              "$ACCT $BACKEND_ACCT $DATA_ACCT $NETWORK_ACCT"
+            export AWS_ACCESS_KEY_ID=""
+            export AWS_SECRET_ACCESS_KEY=""
+            source scripts/tf_destroy.sh \
+              $NAMESPACE \
+              $BACKEND_BUCKET \
+              $BACKEND_TABLE \
+              $BACKEND_ACCT \
+              $REPONAME \
+              $AWS_DEFAULT_REGION
+
+  # frontend:
+  #   docker:
+  #     - image: 637288593987.dkr.ecr.us-east-1.amazonaws.com/cloudcontainers:linux_build
+  #       aws_auth:
+  #         aws_access_key_id: $AWS_ACCESS_KEY_ID
+  #         aws_secret_access_key: $AWS_SECRET_ACCESS_KEY
+  #   steps:
+  #     - checkout
+  #     - *init_bash_env
+  #     - run:
+  #         name: Build Frontend
+  #         command: |
+  #           source scripts/tf_creds.sh $AWS_DEFAULT_REGION $NAMESPACE $DEFAULT_PROFILE "$ACCT"
+  #           export AWS_ACCESS_KEY_ID=""
+  #           export AWS_SECRET_ACCESS_KEY=""
+
+  #           NEXTAUTH_URL=$(aws ssm get-parameter --name "${NAMESPACE}_api_invoke_url" | jq -r '.Parameter.Value')
+  #           OKTA_CLIENT_ID=$(aws ssm get-parameter --name "${NAMESPACE}-docs-service_client_id" | jq -r '.Parameter.Value')
+  #           OKTA_REDIRECT_URI=$(aws ssm get-parameter --name "${NAMESPACE}-docs-service_callback_uri" | jq -r '.Parameter.Value')
+
+  #           cd code/front-end/
+
+  #           echo "NEXTAUTH_URL=${NEXTAUTH_URL}" > .env
+  #           echo "OKTA_CLIENT_ID=${OKTA_CLIENT_ID}" >> .env
+  #           echo "OKTA_REDIRECT_URI=${OKTA_REDIRECT_URI}" >> .env
+
+  #           cat .env
+
+  #           apt-get remove nodejs -y
+
+  #           curl -sL https://deb.nodesource.com/setup_16.x -o /tmp/nodesource_setup.sh
+  #           bash /tmp/nodesource_setup.sh
+
+  #           apt install nodejs -y
+
+  #           node --version
+
+  #           npm install
+  #           npm run build
+
+  #           if [[ "${NAMESPACE}" == "prod" ]]; then
+  #             aws s3 cp ./out "s3://docs.abcloud.cloud/" --recursive
+  #           else
+  #             aws s3 cp ./out "s3://${NAMESPACE}-docs.abcloud.cloud/" --recursive
+  #           fi
+
+  tests:
+    <<: *pytest
+    steps:
+      - checkout
+      - run:
+          name: "Install packages"
+          command: |
+            python3 -m pip install -r tests/requirements.txt
+      - run:
+          name: "Run tests"
+          command: |
+            python3 -m pytest -v
+
+workflows:
+  version: 2
+  release:
+    jobs:
+      - release:
+          context: Dev
+          filters:
+            branches:
+              only:
+                - main
+
+  housekeeping:
+    jobs:
+      - add_op_to_pr:
+          context: Dev
+          filters:
+            branches:
+              ignore: main
+
+  lint:
+    jobs:
+      - lint_python:
+          context: Dev
+          filters:
+            branches:
+              ignore: main
+      - lint_bash:
+          context: Dev
+          filters:
+            branches:
+              ignore: main
+      - lint_json:
+          context: Dev
+          filters:
+            branches:
+              ignore: main
+      - lint_yaml:
+          context: Dev
+          filters:
+            branches:
+              ignore: main
+      - lint_terraform:
+          context: Dev
+          filters:
+            branches:
+              ignore: main
+  testing:
+    jobs:
+      - tests:
+          context: Dev
+
+  build:
+    jobs:
+      - artifact_bucket:
+          context: Dev
+      - artifacts:
+          context: Dev
+          requires:
+            - artifact_bucket
+      # - plan-prod:
+      #     context: Dev
+      #     requires:
+      #       - artifacts
+      #     filters:
+      #       branches:
+      #         ignore: main
+      - plan:
+          context: Dev
+          requires:
+            - artifacts
+      - compliance:
+          context: Dev
+          requires:
+            - plan
+          filters:
+            branches:
+              ignore: master
+      - run_apply:
+          type: approval
+          requires:
+            - plan
+            #- compliance
+      - apply:
+          context: Dev
+          requires:
+            - run_apply
+      # - frontend:
+      #     context: Dev
+      #     requires:
+      #       - apply
+      # - docker_build:
+      #     context: Dev
+      #     requires:
+      #       - run_apply
+      - run_destroy:
+          type: approval
+          filters:
+            branches:
+              ignore: main
+          requires:
+            - run_apply
+      - destroy:
+          context: Dev
+          requires:
+            - run_destroy
+          filters:
+            branches:
+              ignore: main

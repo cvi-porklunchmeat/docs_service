@@ -1,0 +1,65 @@
+{
+    "version": "0",
+    "id": "7120bae4-9d01-2045-317d-9c25792ce932",
+    "detail-type": "Event from aws:sqs",
+    "source": "Pipe pr-28-docs-service-sqs_to_eventbridge",
+    "account": "182773718531",
+    "time": "2023-07-05T00:45:34Z",
+    "region": "us-east-1",
+    "resources": [],
+    "detail": {
+        "messageId": "5dfa96c2-b023-4436-a8ee-989cd9d11163",
+        "receiptHandle": "AQEBbbQvYj2JBJqH4ce/qHLF7zslP7noVfwysWUlnwTB7FytWnacFKC34b6SW8/HeRjulzQK6NqaD4vexkglR7imnqWUi1YxdBlI+/8uSd1PCFzKgCELVPmi0gRPiADlEzkG4MqnXC0Z9jYD286sN2QWQqezMFGBoYVXjXG2JaXFB9KLvDe+PLIuQ8DCl+LpURKVseABNpxD/Td9NxdYQQX/HMEWeWLUantJSrXsvwA/pvcHjkOFPvNKpQkjUTgl9ZL7Ja1+jBEIj33fHI4WVY9LmHZeN5C/mN/5YSn9xTeAbne5JMG1DZ6xpSoU3OUS3gZ8UODy64sNcVF4NNZOsLW4cjHiiiFWJE9LPrgb6GWZ3C2fUicpsnQB5+lBjivlkalvd/LhYuDeu0OLCc7J94WyxghsCw97HOS/9kLcb2A8UXY=",
+        "body": {
+            "Records": [
+                {
+                    "eventVersion": "2.1",
+                    "eventSource": "aws:s3",
+                    "awsRegion": "us-east-1",
+                    "eventTime": "2023-07-05T00:45:32.335Z",
+                    "eventName": "ObjectCreated:CompleteMultipartUpload",
+                    "userIdentity": {
+                        "principalId": "AWS:AROASVDRJTYBUQY745MB3:pr-28-docs-service-fetch-and-download"
+                    },
+                    "requestParameters": {
+                        "sourceIPAddress": "44.204.33.24"
+                    },
+                    "responseElements": {
+                        "x-amz-request-id": "76JPFHJ3ZBM5F3PV",
+                        "x-amz-id-2": "I/JxfwDVWGBVAg/baD+H7Q2XXaVPedkeJUqho+PUA/07srHMdY6K2dGXID5w+ZUejHPAUuv5hJeKHpbMheqRvjzSUV0duXuY"
+                    },
+                    "s3": {
+                        "s3SchemaVersion": "1.0",
+                        "configurationId": "pdf-upload-event",
+                        "bucket": {
+                            "name": "pr-28-docs-service-documents",
+                            "ownerIdentity": {
+                                "principalId": "A26PYTU51ZJSB0"
+                            },
+                            "arn": "arn:aws:s3:::pr-28-docs-service-documents"
+                        },
+                        "object": {
+                            "key": "files/2023-07-05/407338e9-415b-4640-8b86-31e920e0519c/document.pdf",
+                            "size": 10325315,
+                            "eTag": "bade02db2cb0c885eedac665b7e74c1b-2",
+                            "versionId": "srBGl5gEZ4tV8lGOqp1n8NouuKe7_cct",
+                            "sequencer": "0064A4BD2B0E475896"
+                        }
+                    }
+                }
+            ]
+        },
+        "attributes": {
+            "ApproximateReceiveCount": "1",
+            "AWSTraceHeader": "Root=1-64a4bd23-cc615bdd565ab46a8e8b6224;Sampled=0",
+            "SentTimestamp": "1688517933628",
+            "SenderId": "AIDAJHIPRHEMV73VRJEBU",
+            "ApproximateFirstReceiveTimestamp": "1688517933629"
+        },
+        "messageAttributes": {},
+        "md5OfBody": "e9e02a9dc19dcf3f87cdeb4549cb0fe5",
+        "eventSource": "aws:sqs",
+        "eventSourceARN": "arn:aws:sqs:us-east-1:182773718531:pr-28-docs-service-s3-to-pipe",
+        "awsRegion": "us-east-1"
+    }
+}

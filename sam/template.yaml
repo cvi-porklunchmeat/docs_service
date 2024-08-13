@@ -1,0 +1,144 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  document_service
+
+Globals:
+  Function:
+    Timeout: 30
+    MemorySize: 512
+    Runtime: python3.10
+
+Parameters:
+  SourceBucketName:
+    Default: "test-document-service"
+    Type: String
+
+Resources:
+  FetchAndDownloadFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: app.lambda_handler
+      CodeUri: ../code/lambdas/fetch_and_download
+      Description: Fetch and download document function
+      Architectures:
+        - x86_64
+      Tracing: Active
+      Events:
+        UploadPath:
+          Type: Api
+          Properties:
+            Path: /upload
+            Method: POST
+      Policies:
+        - S3ReadPolicy:
+            BucketName: !Ref SourceBucket
+        - Statement:
+          - Effect: Allow
+            Action:
+              - "s3:GetObject"
+              - "s3:PutObject"
+            Resource:
+              - Fn::Sub: "arn:aws:s3:::test-document-service/*"
+      Environment:
+        Variables:
+          POWERTOOLS_SERVICE_NAME: DocumentService
+          LOG_LEVEL: INFO
+      Tags:
+        LambdaPowertools: python
+  RetrieveOpenSearchData:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: app.lambda_handler
+      CodeUri: ../code/lambdas/opensearch_document_download
+      Description: Download data from opensearch
+      Architectures:
+        - x86_64
+      Tracing: Active
+      Events:
+        UploadPath:
+          Type: Api
+          Properties:
+            Path: /docs/search
+            Method: GET
+      Environment:
+        Variables:
+          POWERTOOLS_SERVICE_NAME: DocumentService
+          LOG_LEVEL: INFO
+      Tags:
+        LambdaPowertools: python
+
+  SourceBucket:
+    Type: 'AWS::S3::Bucket'
+    DependsOn:
+      - QueuePolicy
+    Properties:
+      BucketName: !Ref SourceBucketName
+      NotificationConfiguration:
+        QueueConfigurations:
+          - Event: 's3:ObjectCreated:*'
+            Queue: !GetAtt StandardQueue.Arn
+
+  QueuePolicy:
+    Type: 'AWS::SQS::QueuePolicy'
+    Properties:
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: "s3.amazonaws.com"
+            Action:
+              - 'SQS:SendMessage'
+            Resource: !GetAtt StandardQueue.Arn
+            Condition:
+              ArnLike:
+                aws:SourceArn: !Join ["",['arn:aws:s3:::',!Ref SourceBucketName]]
+              StringEquals:
+                aws:SourceAccount: !Ref AWS::AccountId
+      Queues:
+        - !Ref StandardQueue
+
+  TextractFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: app.lambda_handler
+      CodeUri: ../code/lambdas/start_textract
+      Runtime: python3.10
+      Description: Trigger a message to start a Textract process asynchronously
+      Architectures:
+        - x86_64
+      Events:
+        PdfEvent:
+          Type: SQS
+          Properties:
+            Queue: !GetAtt StandardQueue.Arn
+      Policies:
+        - S3ReadPolicy:
+            BucketName: !Ref SourceBucket
+        - Statement:
+            - Effect: Allow
+              Action:
+                - "s3:GetObject"
+              Resource:
+                - Fn::Sub: "arn:aws:s3:::test-document-service/*"
+        - Statement:
+            - Effect: Allow
+              Action: "textract:*"
+              Resource: "*"
+  StandardQueue:
+    Type: AWS::SQS::Queue
+
+Outputs:
+    FetchAndDownloadApi:
+      Description: "API Gateway endpoint URL for Prod environment for Fetch And Download Function"
+      Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/upload"
+
+    FetchAndDownloadFunction:
+      Description: "Fetch And Download Lambda Function ARN"
+      Value: !GetAtt FetchAndDownloadFunction.Arn
+
+    TextractFunction:
+      Description: "Textract Lambda Function ARN"
+      Value: !GetAtt TextractFunction.Arn
+

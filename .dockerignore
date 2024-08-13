@@ -1,0 +1,8 @@
+code/front-end/.next
+code/front-end/node_modules
+code/front-end/out
+code/front-end/.env
+code/front-end/next-env.d.ts
+
+
+docker run --name test -p 0.0.0.0:5000:3000 98cb856f3e44

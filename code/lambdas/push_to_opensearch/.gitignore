@@ -1,0 +1,12 @@
+# Ignore everything
+*
+
+# But not these files...
+!.gitignore
+!func.py
+!event.json
+!__init__.py
+!readme.md
+!requirements.txt
+# etc...
+

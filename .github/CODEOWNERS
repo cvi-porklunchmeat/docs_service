@@ -1,0 +1,6 @@
+# Order is important. The last matching pattern has the most precedence.
+# These owners will be the default owners for everything in
+# the repo. Unless a later match takes precedence,
+# @cloud-Automation and @cloud-investors/cloud_techops_team will be requested for
+# review when someone opens a pull request.
+*   @cloud-Automation @cloud-investors/cloud_techops_team

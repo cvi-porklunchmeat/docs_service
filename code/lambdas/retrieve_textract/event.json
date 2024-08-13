@@ -1,0 +1,45 @@
+{
+  "version": "0",
+  "id": "2c6b4ce6-de94-cfd2-0e7c-8c2b253f1638",
+  "detail-type": "Event from aws:sqs",
+  "source": "Pipe pr-28-docs-service-sqs_to_eventbridge",
+  "account": "182773718531",
+  "time": "2023-07-05T00:46:09Z",
+  "region": "us-east-1",
+  "resources": [],
+  "detail": {
+      "messageId": "63950198-123f-41e3-acf5-e4f64d7e634d",
+      "receiptHandle": "AQEBdOzo+AhRSrNn0G1txHQJ/Ik/8nBMX1VD/jhq3zq33e2yrtvHeR3sYBkdKlQriXI31F7MY1cCE3fZ8eSgpY67SBLk0a6Io3Se9jHgD1b7Xk2rz9anLn/9nhcLoDjsiJ4yALtlQNQ5mO1UoxL894yK07ElFiRIbsVWN9axrqR3pZXwPP1S/FWgH/Qqd5FzqYXMPwmemMKsw2l9xs3isW2Z6nSDYii/Xt7iqhG1IVgvU83qMtureKIJPFhqQ0FaPA+5p96INrm3LuHQBoefH5OY6HewLpR4P8521KNTPg6LOkxNQxT9fxLThiRMTL0eQZw4WQDr08BeG5zivzQGhddoFG1tnDrcEmyIef+h8vxagqDDP9wXupTSutVtM9H10H82/Ym4IjAr8AHb25pCPoGe8WxUOpva6K929tFUz1Ui4C0=",
+      "body": {
+          "Type": "Notification",
+          "MessageId": "0eabc1d8-fc3a-5eff-8628-9cc643abdd1b",
+          "TopicArn": "arn:aws:sns:us-east-1:182773718531:pr-28-docs-service-textract-results",
+          "Message": {
+              "JobId": "109b6d54660d2d3bd3e30628f4124eac728d79fa62f28c5327c681100c3406f7",
+              "Status": "SUCCEEDED",
+              "API": "StartDocumentTextDetection",
+              "Timestamp": 1688517969285,
+              "DocumentLocation": {
+                  "S3ObjectName": "files/2023-07-05/407338e9-415b-4640-8b86-31e920e0519c/document.pdf",
+                  "S3Bucket": "pr-28-docs-service-documents"
+              }
+          },
+          "Timestamp": "2023-07-05T00:46:09.340Z",
+          "SignatureVersion": "1",
+          "Signature": "pKpE7X1LGU9+5iXBzZ1e4aATXRxIz9Igj1xpt/PM0WUVYn5v+h4bP5cpQrbOXSqG+SIywvvb8URVH3jmKmgVKcjqe0FzMMfAxCHEhlnGjtpXjRLQKTE+2zfpbkFPC31O7KuOR4r2PCmqq/A6O98QSisTwipjlQlG8+rH78a63PTX2QmTJw40t2F/D3rUWV8fUo6xEmGwlzoAFwjrSAEzw2d+b7j8VPw3JmRYWOKf9xuAOs2JpJibM3zHk+6ifNuLkoS4bDvyifJzRC/NzN47Qw2n/HF4iYOGTdfjFoQlGaXmFPH/2VvFaqH9J819CZfM1ND6EYz3U1uOBWMZJveGug==",
+          "SigningCertURL": "https://sns.us-east-1.amazonaws.com/SimpleNotificationService-01d088a6f77103d0fe307c0069e40ed6.pem",
+          "UnsubscribeURL": "https://sns.us-east-1.amazonaws.com/?Action=Unsubscribe&SubscriptionArn=arn:aws:sns:us-east-1:182773718531:pr-28-docs-service-textract-results:d5bd7a01-980f-45b9-a03d-b15007960430"
+      },
+      "attributes": {
+          "ApproximateReceiveCount": "1",
+          "SentTimestamp": "1688517969375",
+          "SenderId": "AIDAIT2UOQQY3AUEKVGXU",
+          "ApproximateFirstReceiveTimestamp": "1688517969379"
+      },
+      "messageAttributes": {},
+      "md5OfBody": "8021c3e0ee1977cae01830d25c711e6b",
+      "eventSource": "aws:sqs",
+      "eventSourceARN": "arn:aws:sqs:us-east-1:182773718531:pr-28-docs-service-s3-to-pipe",
+      "awsRegion": "us-east-1"
+  }
+}

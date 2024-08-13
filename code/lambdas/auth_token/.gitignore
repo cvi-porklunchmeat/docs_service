@@ -1,0 +1,7 @@
+# Ignore all
+*
+# But not these files...
+!.gitignore
+!func.py
+!requirements.txt
+!readme.md

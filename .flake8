@@ -1,0 +1,15 @@
+[flake8]
+extend-ignore = D, E203, W503
+exclude =
+  .tox,
+  .CAM,
+  .git,
+  __pycache__,
+  *.pyc,
+  *.egg-info,
+  .cache,
+  .eggs,
+  .aws-sam
+  .venv
+max-complexity = 10
+max-line-length = 120
