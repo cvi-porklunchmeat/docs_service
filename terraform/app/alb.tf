@@ -212,7 +212,7 @@
 
 #   condition {
 #     path_pattern {
-#       values = ["/ab-cloud-logo.png"]
+#       values = ["/cloud-logo.png"]
 #     }
 #   }
 # }

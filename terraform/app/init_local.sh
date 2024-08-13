@@ -28,7 +28,7 @@ function init_local () {
     banner
 
     # List of AWS accounts we need to authenticate to
-    local required_accounts=("589122266145" "314133070617" "648155496553")
+    local required_accounts=("00000000001" "314133070617" "648155496553")
 
     local script_location
     local parent_dir
@@ -100,7 +100,7 @@ function init_local () {
                 log "✅ Found profile: ${prof} for account: ${req}"
                 [[ $(aws sts get-caller-identity --profile "${prof#*=}") ]] && log "✅ - Active creds found" || aws sso login --sso-session abcloud
                 found=true
-                [[ ${req} == "589122266145" ]] && local mgmt_acct="${prof#*=}"
+                [[ ${req} == "00000000001" ]] && local mgmt_acct="${prof#*=}"
                 break
             fi
         done

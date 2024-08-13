@@ -73,7 +73,7 @@ function DataTables() {
                 Search Database
               </MDTypography>
               <MDTypography variant="button" color="text">
-                Search through all the AB cloud documents bank.
+                Search through all the cloud documents bank.
               </MDTypography>
             </MDBox>
             {noResults ? (

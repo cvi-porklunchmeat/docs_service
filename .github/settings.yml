@@ -32,7 +32,7 @@ repository:
   has_downloads: true
 
   # Updates the default branch for this repository.
-  default_branch: main
+  default_branch: master
 
   # Either `true` to allow squash-merging pull requests, or `false` to prevent
   # squash-merging.
@@ -83,13 +83,13 @@ labels:
 # NOTE: The APIs needed for teams are not supported yet by GitHub Apps
 # https://developer.github.com/v3/apps/available-endpoints/
 teams:
-  - name: cloud_TechOps_Team
+  - name: cloud_Team
     permission: admin
 #  - name: docs
 #    permission: push
 
 branches:
-  - name: main
+  - name: master
     # https://developer.github.com/v3/repos/branches/#update-branch-protection
     # Branch Protection settings. Set to null to disable
     protection:

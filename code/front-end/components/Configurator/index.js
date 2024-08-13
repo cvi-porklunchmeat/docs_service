@@ -117,7 +117,7 @@ function Configurator() {
         px={3}
       >
         <MDBox>
-          <MDTypography variant="h5">AB cloud Configurator</MDTypography>
+          <MDTypography variant="h5">cloud Configurator</MDTypography>
           <MDTypography variant="body2" color="text">
             Customise your experience
           </MDTypography>

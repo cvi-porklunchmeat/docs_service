@@ -90,7 +90,7 @@ function Main({ Component, pageProps }) {
           <Sidenav
             color={sidenavColor}
             brand={brandIcon}
-            brandName="AB cloud"
+            brandName="cloud"
             routes={routes}
             onMouseEnter={handleOnMouseEnter}
             onMouseLeave={handleOnMouseLeave}
@@ -114,7 +114,7 @@ function App({
           <meta name="viewport" content="width=device-width, initial-scale=1" />
           <link rel="shortcut icon" href={favicon.src} />
           <link rel="apple-touch-icon" sizes="76x76" href={appleIcon.src} />
-          <title>AB cloud - Document Service</title>
+          <title>cloud - Document Service</title>
         </Head>
         <SessionProvider session={session}>
           {Component.requireAuth ? (

@@ -1,7 +1,7 @@
 import "../styles/globals.css";
 
 export const metadata = {
-  title: "AB cloud - Document Service",
+  title: "cloud - Document Service",
   description: 'Upload and search all your documents',
 }
 

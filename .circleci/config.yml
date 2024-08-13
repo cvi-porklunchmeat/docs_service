@@ -6,35 +6,35 @@ version: 2.1
 anchors:
   - &linux_build
     docker:
-      - image: 589122266145.dkr.ecr.us-east-1.amazonaws.com/prod-linux_build:latest #checkov:skip=CKV_CIRCLECIPIPELINES_1:Trust cloud Images
+      - image: 00000000001.dkr.ecr.us-east-1.amazonaws.com/prod-linux_build:latest #checkov:skip=CKV_CIRCLECIPIPELINES_1:Trust cloud Images
         aws_auth:
           aws_access_key_id: $AWS_ACCESS_KEY_ID
           aws_secret_access_key: $AWS_SECRET_ACCESS_KEY
 
   - &linux_tf
     docker:
-      - image: 589122266145.dkr.ecr.us-east-1.amazonaws.com/prod-linux_tf:2.1.0 #checkov:skip=CKV_CIRCLECIPIPELINES_2:Trust cloud Images
+      - image: 00000000001.dkr.ecr.us-east-1.amazonaws.com/prod-linux_tf:2.1.0 #checkov:skip=CKV_CIRCLECIPIPELINES_2:Trust cloud Images
         aws_auth:
           aws_access_key_id: $AWS_ACCESS_KEY_ID
           aws_secret_access_key: $AWS_SECRET_ACCESS_KEY
 
   - &linter
     docker:
-      - image: 589122266145.dkr.ecr.us-east-1.amazonaws.com/prod-linter:2.0.0 #checkov:skip=CKV_CIRCLECIPIPELINES_2:Trust cloud Images
+      - image: 00000000001.dkr.ecr.us-east-1.amazonaws.com/prod-linter:2.0.0 #checkov:skip=CKV_CIRCLECIPIPELINES_2:Trust cloud Images
         aws_auth:
           aws_access_key_id: $AWS_ACCESS_KEY_ID
           aws_secret_access_key: $AWS_SECRET_ACCESS_KEY
 
   - &alpine_build
     docker:
-      - image: 589122266145.dkr.ecr.us-east-1.amazonaws.com/prod-alpine_build:2.0.0
+      - image: 00000000001.dkr.ecr.us-east-1.amazonaws.com/prod-alpine_build:2.0.0
         aws_auth:
           aws_access_key_id: $AWS_ACCESS_KEY_ID
           aws_secret_access_key: $AWS_SECRET_ACCESS_KEY
 
   - &compliance_container
     docker:
-      - image: 589122266145.dkr.ecr.us-east-1.amazonaws.com/prod-compliance:latest
+      - image: 00000000001.dkr.ecr.us-east-1.amazonaws.com/prod-compliance:latest
         aws_auth:
           aws_access_key_id: $AWS_ACCESS_KEY_ID
           aws_secret_access_key: $AWS_SECRET_ACCESS_KEY
@@ -51,7 +51,7 @@ anchors:
         echo 'export AWS_DEFAULT_REGION="us-east-1"' >> $BASH_ENV
         echo 'export AWS_ACCESS_KEY_ID="$AWS_ACCESS_KEY_ID"' >> $BASH_ENV
         echo 'export AWS_SECRET_ACCESS_KEY="$AWS_SECRET_ACCESS_KEY"' >> $BASH_ENV
-        echo 'export BACKEND_ACCT="589122266145"' >> $BASH_ENV
+        echo 'export BACKEND_ACCT="00000000001"' >> $BASH_ENV
         echo 'export DATA_ACCT="967336502278"' >> $BASH_ENV
         echo 'export NETWORK_ACCT="861337485143"' >> $BASH_ENV
         echo 'export GIT_COMMIT=$(git rev-parse --short HEAD)' >> $BASH_ENV
@@ -269,7 +269,7 @@ jobs:
   #           export AWS_DEFAULT_REGION="us-east-1"
   #           export AWS_ACCESS_KEY_ID="$AWS_ACCESS_KEY_ID"
   #           export AWS_SECRET_ACCESS_KEY="$AWS_SECRET_ACCESS_KEY"
-  #           export BACKEND_ACCT="589122266145"
+  #           export BACKEND_ACCT="00000000001"
 
   #           export NAMESPACE="prod"
   #           export REPONAME="${CIRCLE_PROJECT_REPONAME}"

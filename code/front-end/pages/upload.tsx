@@ -13,7 +13,7 @@ const groups = [
   {
     id: "ab_cloud",
     name: "The whole company",
-    description: "AB cloud",
+    description: "cloud",
   },
   {
     id: "just_me",
@@ -408,7 +408,7 @@ export default function UploadPage() {
                                     as="span"
                                     className="flex text-sm ml-4 mt-0 flex-col text-right items-center justify-center"
                                   >
-                                    {group.description === "AB cloud" ? (
+                                    {group.description === "cloud" ? (
                                       <svg
                                         xmlns="http://www.w3.org/2000/svg"
                                         fill="none"
@@ -564,8 +564,8 @@ export default function UploadPage() {
                             ease: [0.23, 1, 0.32, 1],
                           }}
                           className="block w-[200px]"
-                          src="ab-cloud-logo.png"
-                          alt="AB cloud Brand Logo"
+                          src="cloud-logo.png"
+                          alt="cloud Brand Logo"
                         ></motion.img>
                       </p>
                     </li>
@@ -723,7 +723,7 @@ export default function UploadPage() {
 
                       <ul className="mt-[28px] flex">
                         <li className="list-none max-w-[400px]">
-                          Search through all the AB cloud documents bank.
+                          Search through all the cloud documents bank.
                         </li>
                       </ul>
                     </div>

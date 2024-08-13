@@ -21,7 +21,7 @@ import SidenavItem from "@/components/Sidenav/SidenavItem";
 import SidenavRoot from "@/components/Sidenav/SidenavRoot";
 import sidenavLogoLabel from "@/components/Sidenav/styles/sidenav";
 
-import cloudBrand from "/public/ab-cloud-logo.png";
+import cloudBrand from "/public/cloud-logo.png";
 
 import {
   useMaterialUIController,

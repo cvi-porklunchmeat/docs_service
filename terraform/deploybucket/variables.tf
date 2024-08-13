@@ -19,7 +19,7 @@ variable "bucketname" {
 
 variable "backendacct" {
   type    = string
-  default = "589122266145"
+  default = "00000000001"
 }
 
 variable "tags" {

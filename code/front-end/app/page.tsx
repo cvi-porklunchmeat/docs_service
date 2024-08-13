@@ -33,8 +33,8 @@ export default function Home() {
               ease: [0.165, 0.84, 0.44, 1],
             }}
             className="block w-[200px] md:ml-[-10px] row-start-2 mb-8 md:mb-6"
-            src="ab-cloud-logo.png"
-            alt="AB cloud Brand Logo"
+            src="cloud-logo.png"
+            alt="cloud Brand Logo"
           ></motion.img>
 
           <motion.h3
@@ -65,7 +65,7 @@ export default function Home() {
                 Research
               </h2>
               <p className="text-[14px] leading-[20px] text-[#1a2b3b] font-normal">
-                Full access to all AB cloud&apos;s documents ever uploaded to
+                Full access to all cloud&apos;s documents ever uploaded to
                 the platform.
               </p>
 

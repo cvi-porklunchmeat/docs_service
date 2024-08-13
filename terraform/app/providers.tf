@@ -35,7 +35,7 @@ provider "aws" {
 provider "aws" {
   alias   = "management"
   region  = var.json.aws_region
-  profile = "589122266145"
+  profile = "00000000001"
   default_tags {
     tags = var.json.default_tags
   }

@@ -40,7 +40,7 @@ import avatar from "/assets/theme/components/avatar";
 import tooltip from "/assets/theme/components/tooltip";
 import appBar from "/assets/theme/components/appBar";
 import tabs from "/assets/theme/components/tabs";
-import tab from "/assets/theme/components/tabs/tab";
+import tfrom "/assets/theme/components/tabs/tab";
 import stepper from "/assets/theme/components/stepper";
 import step from "/assets/theme/components/stepper/step";
 import stepConnector from "/assets/theme/components/stepper/stepConnector";
@@ -114,7 +114,7 @@ export default createTheme({
     MuiTooltip: { ...tooltip },
     MuiAppBar: { ...appBar },
     MuiTabs: { ...tabs },
-    MuiTab: { ...tab },
+    MuiTab: { ...t},
     MuiStepper: { ...stepper },
     MuiStep: { ...step },
     MuiStepConnector: { ...stepConnector },
