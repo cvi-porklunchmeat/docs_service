@@ -1,0 +1,23 @@
+{
+      schema              = "https"
+      resp_type           = "config"
+      timeout             = 0
+      match_type          = "plain"
+      description         = "Get home page of ${var.app_name}"
+      use_default_root    = true
+      http_method         = "GET"
+      enable              = true
+      http_version        = "1.1"
+      follow_redirection  = true
+      post_data_edit_type = "raw"
+      name                = "GetHomePage"
+      req_type            = "config"
+      fullpage_load       = false
+      require_auth        = false
+      keyword             = "Track Record"
+      label               = "Home Page GET for ${var.app_name}"
+      url                 = "/"
+      type                = "config"
+      invert_match        = false
+      status_code         = "200"
+    }
